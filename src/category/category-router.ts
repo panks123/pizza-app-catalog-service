@@ -10,12 +10,13 @@ import { Roles } from "../common/constants";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-    res.json({ message: "Category" });
-});
-
 const categoryService = new CategoryService();
 const categoryController = new CategoryController(categoryService, logger);
+
+router.get("/", asyncWrapper(categoryController.getAll));
+
+router.get("/:categoryId", asyncWrapper(categoryController.getOne));
+
 router.post(
     "/",
     authenticate,
@@ -23,4 +24,5 @@ router.post(
     categoryValidator,
     asyncWrapper(categoryController.create),
 );
+
 export default router;
