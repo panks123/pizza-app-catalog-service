@@ -14,6 +14,7 @@ export class ProductController {
         private storage: FileStorage,
         private logger: Logger,
     ) {}
+
     create = async (req: Request, res: Response, next: NextFunction) => {
         const validationRes = validationResult(req);
         if (!validationRes.isEmpty()) {
@@ -57,5 +58,57 @@ export class ProductController {
 
         this.logger.info("Created product", { id: newProduct._id });
         res.json({ id: newProduct._id });
+    };
+
+    update = async (req: Request, res: Response, next: NextFunction) => {
+        const validationRes = validationResult(req);
+        if (!validationRes.isEmpty()) {
+            return next(
+                createHttpError(400, validationRes.array()[0].msg as string),
+            );
+        }
+
+        const { productId } = req.params;
+        let imageName: string | undefined;
+        const oldImage = await this.productService.getProductImage(productId);
+        if (req.files?.image) {
+            const image = req.files.image as UploadedFile;
+            imageName = uuid4();
+
+            await this.storage.upload({
+                filename: imageName,
+                fileData: image.data.buffer,
+            });
+
+            await this.storage.delete(oldImage!);
+        }
+        const {
+            name,
+            description,
+            priceConfiguration,
+            attributes,
+            tenantId,
+            categoryId,
+            isPublish,
+        } = req.body as Product;
+
+        const product = {
+            name,
+            description,
+            image: (imageName ?? oldImage)!,
+            priceConfiguration: JSON.parse(
+                priceConfiguration as unknown as string,
+            ) as PriceConfiguration,
+            attributes: JSON.parse(
+                attributes as unknown as string,
+            ) as Attribute[],
+            tenantId,
+            categoryId,
+            isPublish,
+        };
+
+        await this.productService.updateProduct(productId, product);
+
+        res.json({ id: productId });
     };
 }
