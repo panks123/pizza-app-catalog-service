@@ -7,6 +7,8 @@ import { Logger } from "winston";
 import { FileStorage } from "../common/types/storage";
 import { v4 as uuid4 } from "uuid";
 import { UploadedFile } from "express-fileupload";
+import { AuthRequest } from "../common/types";
+import { Roles } from "../common/constants";
 
 export class ProductController {
     constructor(
@@ -69,8 +71,26 @@ export class ProductController {
         }
 
         const { productId } = req.params;
+        const productDetails =
+            await this.productService.getProductById(productId);
+        if (!productDetails) {
+            return next(createHttpError(404, "Product not found"));
+        }
+
+        if ((req as AuthRequest).auth.role !== Roles.ADMIN) {
+            const tenantId = (req as AuthRequest).auth.tenant;
+            if (productDetails.tenantId !== tenantId) {
+                return next(
+                    createHttpError(
+                        403,
+                        "You are not allowed to access this product",
+                    ),
+                );
+            }
+        }
+
         let imageName: string | undefined;
-        const oldImage = await this.productService.getProductImage(productId);
+        const oldImage = productDetails.image;
         if (req.files?.image) {
             const image = req.files.image as UploadedFile;
             imageName = uuid4();
@@ -80,7 +100,7 @@ export class ProductController {
                 fileData: image.data.buffer,
             });
 
-            await this.storage.delete(oldImage!);
+            await this.storage.delete(oldImage);
         }
         const {
             name,
