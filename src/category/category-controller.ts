@@ -13,6 +13,8 @@ export class CategoryController {
         this.create = this.create.bind(this);
         this.getAll = this.getAll.bind(this);
         this.getOne = this.getOne.bind(this);
+        this.deleteOne = this.deleteOne.bind(this);
+        this.update = this.update.bind(this);
     }
 
     async create(req: Request, res: Response, next: NextFunction) {
@@ -48,5 +50,43 @@ export class CategoryController {
         }
         this.logger.info(`Getting category`, { id: category._id });
         res.json(category);
+    }
+
+    async deleteOne(req: Request, res: Response, next: NextFunction) {
+        const { categoryId } = req.params;
+        const category = await this.categoryService.getOne(categoryId);
+        if (!category) {
+            return next(createHttpError(404, "Category not found"));
+        }
+
+        await this.categoryService.deleteOne(categoryId);
+
+        this.logger.info(`Deleted category`, { id: category._id });
+        res.json({ categoryId, msg: "success" });
+    }
+
+    async update(req: Request, res: Response, next: NextFunction) {
+        const validationRes = validationResult(req);
+        if (!validationRes.isEmpty()) {
+            return next(
+                createHttpError(400, validationRes.array()[0].msg as string),
+            );
+        }
+
+        const { categoryId } = req.params;
+        const category = await this.categoryService.getOne(categoryId);
+        if (!category) {
+            return next(createHttpError(404, "Category not found"));
+        }
+
+        const { name, priceConfiguration, attributes } = req.body as Category;
+        await this.categoryService.update(categoryId, {
+            name,
+            priceConfiguration,
+            attributes,
+        });
+
+        this.logger.info("Updated category", { categoryId });
+        res.json({ categoryId, msg: "success" });
     }
 }

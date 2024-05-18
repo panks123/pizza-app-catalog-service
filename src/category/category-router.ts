@@ -25,4 +25,19 @@ router.post(
     asyncWrapper(categoryController.create),
 );
 
+router.delete(
+    "/:categoryId",
+    authenticate,
+    canAccess([Roles.ADMIN]),
+    asyncWrapper(categoryController.deleteOne),
+);
+
+router.put(
+    "/:categoryId",
+    authenticate,
+    canAccess([Roles.ADMIN]),
+    categoryValidator,
+    asyncWrapper(categoryController.update),
+);
+
 export default router;

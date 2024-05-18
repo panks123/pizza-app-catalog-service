@@ -14,4 +14,16 @@ export class CategoryService {
     async getOne(categoryId: string) {
         return await CategoryModel.findOne({ _id: categoryId });
     }
+
+    async deleteOne(categoryId: string) {
+        return await CategoryModel.deleteOne({ _id: categoryId });
+    }
+
+    async update(categoryId: string, categoryData: Category) {
+        return (await CategoryModel.findOneAndUpdate(
+            { _id: categoryId },
+            { $set: categoryData },
+            { new: true },
+        )) as Category;
+    }
 }
