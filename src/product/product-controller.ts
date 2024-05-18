@@ -139,7 +139,7 @@ export class ProductController {
     };
 
     getAll = async (req: Request, res: Response) => {
-        const { q, tenantId, categoryId, isPublish } = req.query;
+        const { q, tenantId, categoryId, isPublish, page, limit } = req.query;
         const filters: ProductFilters = {};
         if (isPublish === "true") filters.isPublish = true;
 
@@ -153,8 +153,12 @@ export class ProductController {
         const products = await this.productService.getAll(
             (q as string)?.trim(),
             filters,
+            {
+                page: page ? parseInt(page as string) : 1,
+                limit: limit ? parseInt(limit as string) : 10,
+            },
         );
         this.logger.info("All products were successfully fetched!");
-        res.json({ products });
+        res.json(products);
     };
 }
