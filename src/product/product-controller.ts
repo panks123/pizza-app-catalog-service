@@ -171,4 +171,45 @@ export class ProductController {
         this.logger.info("All products were successfully fetched!");
         res.json(result);
     };
+
+    getOne = async (req: Request, res: Response, next: NextFunction) => {
+        const { productId } = req.params;
+        const product = await this.productService.getProductById(productId);
+
+        if (!product) {
+            return next(createHttpError(404, "Product not found"));
+        }
+
+        this.logger.info("Product fetched", { productId });
+        res.json(product);
+    };
+
+    deleteOne = async (req: Request, res: Response, next: NextFunction) => {
+        const { productId } = req.params;
+        const product = await this.productService.getProductById(productId);
+
+        if (!product) {
+            return next(createHttpError(404, "Product not found"));
+        }
+
+        if ((req as AuthRequest).auth.role !== Roles.ADMIN) {
+            const tenantId = (req as AuthRequest).auth.tenant;
+            if (product.tenantId !== tenantId) {
+                return next(
+                    createHttpError(
+                        403,
+                        "You are not allowed delete this product",
+                    ),
+                );
+            }
+        }
+
+        await this.productService.deleteOne(productId);
+        const productImage = product.image;
+        // after product deletion delete the image resource from s3
+        this.logger.info("Product deleted", { productId });
+        await this.storage.delete(productImage);
+
+        res.json({ productId, msg: "success" });
+    };
 }
