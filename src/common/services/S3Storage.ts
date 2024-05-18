@@ -5,6 +5,7 @@ import {
     S3Client,
 } from "@aws-sdk/client-s3";
 import config from "config";
+import createHttpError from "http-errors";
 
 export class S3Storage implements FileStorage {
     private client: S3Client;
@@ -42,7 +43,14 @@ export class S3Storage implements FileStorage {
         return await this.client.send(new DeleteObjectCommand(objectParams));
     }
 
-    getObjectUri(): string {
-        return ""; // todo
+    getObjectUri(filename: string): string {
+        // https://pizza-app-project.s3.ap-southeast-2.amazonaws.com/90720f2c-c936-42d9-b549-8f9650e1480c
+        const bucket = config.get("s3.bucket");
+        const region = config.get("s3.region");
+        if (typeof bucket === "string" && typeof region === "string")
+            return `https://${bucket}.s3.${region}.amazonaws.com/${filename}`;
+
+        const error = createHttpError(500, "Invalid s3 configuration");
+        throw error;
     }
 }
