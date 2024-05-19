@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { AggregatePaginateModel } from "mongoose";
 import { Topping } from "./topping-types";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const toppingSchema = new mongoose.Schema<Topping>({
     name: {
@@ -20,4 +21,9 @@ const toppingSchema = new mongoose.Schema<Topping>({
     },
 });
 
-export default mongoose.model<Topping>("Topping", toppingSchema);
+toppingSchema.plugin(mongooseAggregatePaginate);
+
+export default mongoose.model<Topping, AggregatePaginateModel<Topping>>(
+    "Topping",
+    toppingSchema,
+);

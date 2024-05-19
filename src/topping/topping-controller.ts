@@ -48,4 +48,17 @@ export class ToppingController {
             return next(err);
         }
     };
+
+    getAll = async (req: Request, res: Response, next: NextFunction) => {
+        const { page, limit } = req.query;
+        try {
+            const toppings = await this.toppingService.getAll({
+                page: page ? parseInt(page as string) : 1,
+                limit: limit ? parseInt(limit as string) : 10,
+            });
+            res.json(toppings);
+        } catch (err) {
+            return next(err);
+        }
+    };
 }

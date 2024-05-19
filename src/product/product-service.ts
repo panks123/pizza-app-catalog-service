@@ -1,7 +1,8 @@
+import { PaginateQuery } from "../common/types";
 import { paginationLabels } from "../config/pagination";
 import productModel from "./product-model";
 import ProductModel from "./product-model";
-import { PaginateQuery, Product, ProductFilters } from "./product-types";
+import { Product, ProductFilters } from "./product-types";
 
 export class ProductService {
     async create(product: Product) {
