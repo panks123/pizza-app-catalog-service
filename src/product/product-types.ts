@@ -28,7 +28,6 @@ export interface ProductFilters {
     isPublish?: boolean;
 }
 
-export interface PaginateQuery {
-    page: number;
-    limit: number;
+export interface ToppingFilters {
+    tenantId?: string;
 }

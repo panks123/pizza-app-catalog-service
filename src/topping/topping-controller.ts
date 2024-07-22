@@ -7,6 +7,7 @@ import { FileStorage } from "../common/types/storage";
 import { ToppingService } from "./topping-service";
 import { CreateRequestBody, Topping } from "./topping-types";
 import { Logger } from "winston";
+import { ToppingFilters } from "../product/product-types";
 
 export class ToppingController {
     constructor(
@@ -50,12 +51,17 @@ export class ToppingController {
     };
 
     getAll = async (req: Request, res: Response, next: NextFunction) => {
-        const { page, limit } = req.query;
+        const { page, limit, tenantId } = req.query;
         try {
-            const toppings = await this.toppingService.getAll({
-                page: page ? parseInt(page as string) : 1,
-                limit: limit ? parseInt(limit as string) : 10,
-            });
+            const filters: ToppingFilters = {};
+            if (tenantId) filters.tenantId = tenantId as string;
+            const toppings = await this.toppingService.getAll(
+                {
+                    page: page ? parseInt(page as string) : 1,
+                    limit: limit ? parseInt(limit as string) : 10,
+                },
+                filters,
+            );
             res.json(toppings);
         } catch (err) {
             return next(err);
