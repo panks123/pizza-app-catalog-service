@@ -24,11 +24,13 @@ export class CategoryController {
                 createHttpError(400, validationRes.array()[0].msg as string),
             );
         }
-        const { name, priceConfiguration, attributes } = req.body as Category;
+        const { name, priceConfiguration, attributes, hasToppings } =
+            req.body as Category;
         const category = await this.categoryService.create({
             name,
             priceConfiguration,
             attributes,
+            hasToppings: hasToppings === undefined ? false : hasToppings,
         });
 
         this.logger.info("Created category", { id: category._id });
@@ -79,11 +81,13 @@ export class CategoryController {
             return next(createHttpError(404, "Category not found"));
         }
 
-        const { name, priceConfiguration, attributes } = req.body as Category;
+        const { name, priceConfiguration, attributes, hasToppings } =
+            req.body as Category;
         await this.categoryService.update(categoryId, {
             name,
             priceConfiguration,
             attributes,
+            hasToppings: hasToppings === undefined ? false : hasToppings,
         });
 
         this.logger.info("Updated category", { categoryId });

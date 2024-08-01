@@ -62,7 +62,13 @@ export class ToppingController {
                 },
                 filters,
             );
-            res.json(toppings);
+            const finalToppings = (toppings.data as Topping[]).map(
+                (topping) => ({
+                    ...topping,
+                    image: this.storage.getObjectUri(topping.image),
+                }),
+            );
+            res.json({ ...toppings, data: finalToppings });
         } catch (err) {
             return next(err);
         }

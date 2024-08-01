@@ -26,4 +26,10 @@ export default [
         }),
 
     body("attributes").exists().withMessage("attributes field is required"),
+
+    body("hasToppings")
+        .optional()
+        .isBoolean()
+        .withMessage("hasToppings field should be a boolean")
+        .default(false),
 ];

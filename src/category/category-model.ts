@@ -47,6 +47,10 @@ const categorySchema = new mongoose.Schema<Category>({
         type: [attributeSchema],
         required: true,
     },
+    hasToppings: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 export default mongoose.model("Category", categorySchema);
