@@ -10,7 +10,10 @@ export class ProductService {
     }
 
     async getProductById(productId: string) {
-        return (await ProductModel.findOne({ _id: productId })) as Product;
+        // return (await ProductModel.findOne({ _id: productId })) as Product;
+        return ProductModel.findById(productId)
+            .populate("categoryId", "-__v") // Populate category details, exclude __v
+            .lean({ virtuals: true }); // Return product or null if not found
     }
 
     async updateProduct(productId: string, productData: Product) {
@@ -37,10 +40,29 @@ export class ProductService {
 
         const aggregate = ProductModel.aggregate([{ $match: matchQuery }]);
 
-        return productModel.aggregatePaginate(aggregate, {
+        // return productModel.aggregatePaginate(aggregate, {
+        //     ...paginateQuery,
+        //     customLabels: paginationLabels,
+        // });
+        const products = await productModel.aggregatePaginate(aggregate, {
             ...paginateQuery,
             customLabels: paginationLabels,
         });
+
+        // Populate the category details for each product
+        const populateOP = (await productModel.populate(products.data, {
+            path: "categoryId",
+            select: "-__v", // Exclude the __v field from category
+        })) as unknown as Product[];
+
+        const finalProducts = populateOP.map((product: Product) => {
+            return {
+                ...product,
+                category: product.categoryId,
+            };
+        });
+
+        return { ...products, data: finalProducts };
     }
 
     async deleteOne(productId: string) {

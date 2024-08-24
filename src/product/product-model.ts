@@ -1,5 +1,6 @@
 import mongoose, { AggregatePaginateModel } from "mongoose";
 import aggregatePaginate from "mongoose-aggregate-paginate-v2";
+import mongooseLeanVirtuals from "mongoose-lean-virtuals";
 import { Product } from "./product-types";
 
 const priceConfigurationSchema = new mongoose.Schema({
@@ -57,6 +58,12 @@ const productSchema = new mongoose.Schema(
     },
     { timestamps: true },
 );
+
+productSchema.virtual("category").get(function () {
+    return this.categoryId;
+});
+
+productSchema.plugin(mongooseLeanVirtuals);
 
 productSchema.plugin(aggregatePaginate);
 

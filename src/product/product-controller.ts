@@ -159,12 +159,10 @@ export class ProductController {
             },
         );
 
-        const finalProducts = (products.data as Product[]).map(
-            (product: Product) => ({
-                ...product,
-                image: this.storage.getObjectUri(product.image),
-            }),
-        );
+        const finalProducts = products.data.map((product: Product) => ({
+            ...product,
+            image: this.storage.getObjectUri(product.image),
+        }));
 
         const result = { ...products, data: finalProducts };
 
