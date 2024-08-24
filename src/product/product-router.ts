@@ -11,14 +11,17 @@ import fileUpload from "express-fileupload";
 import { S3Storage } from "../common/services/S3Storage";
 import createHttpError from "http-errors";
 import updateProductValidator from "./update-product-validator";
+import { createProducerBroker } from "../common/factories/broker-factory";
 
 const router = express.Router();
 
 const productService = new ProductService();
 const s3Storage = new S3Storage();
+const broker = createProducerBroker();
 const productController = new ProductController(
     productService,
     s3Storage,
+    broker,
     logger,
 );
 

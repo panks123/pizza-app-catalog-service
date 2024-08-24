@@ -13,13 +13,15 @@ import { FileStorage } from "../common/types/storage";
 import { v4 as uuid4 } from "uuid";
 import { UploadedFile } from "express-fileupload";
 import { AuthRequest } from "../common/types";
-import { Roles } from "../common/constants";
+import { KafkaTopics, Roles } from "../common/constants";
 import mongoose from "mongoose";
+import { MessageProducerBroker } from "../common/types/broker";
 
 export class ProductController {
     constructor(
         private productService: ProductService,
         private storage: FileStorage,
+        private broker: MessageProducerBroker,
         private logger: Logger,
     ) {}
 
@@ -63,7 +65,14 @@ export class ProductController {
         };
 
         const newProduct = await this.productService.create(product);
-
+        // Send product to kafka
+        await this.broker.sendMessage(
+            KafkaTopics.PRODUCT,
+            JSON.stringify({
+                id: newProduct._id,
+                priceConfiguration: newProduct.priceConfiguration,
+            }),
+        );
         this.logger.info("Created product", { id: newProduct._id });
         res.json({ id: newProduct._id });
     };
@@ -133,7 +142,19 @@ export class ProductController {
             isPublish,
         };
 
-        await this.productService.updateProduct(productId, product);
+        const updatedProduct = await this.productService.updateProduct(
+            productId,
+            product,
+        );
+
+        // Send product to kafka
+        await this.broker.sendMessage(
+            KafkaTopics.PRODUCT,
+            JSON.stringify({
+                id: updatedProduct._id,
+                priceConfiguration: updatedProduct.priceConfiguration,
+            }),
+        );
         this.logger.info("Product was updated", { productId });
         res.json({ id: productId });
     };
