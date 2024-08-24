@@ -5,4 +5,5 @@ export const Roles = {
 
 export const KafkaTopics = {
     PRODUCT: "product",
+    TOPPING: "topping",
 };

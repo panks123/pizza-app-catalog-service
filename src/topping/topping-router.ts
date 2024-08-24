@@ -9,14 +9,17 @@ import { asyncWrapper } from "../common/utils/wrapper";
 import { ToppingController } from "./topping-controller";
 import { ToppingService } from "./topping-service";
 import { S3Storage } from "../common/services/S3Storage";
+import { createProducerBroker } from "../common/factories/broker-factory";
 import logger from "../config/logger";
 
 const router = express.Router();
 
 const toppingService = new ToppingService();
+const broker = createProducerBroker();
 const toppingController = new ToppingController(
     new S3Storage(),
     toppingService,
+    broker,
     logger,
 );
 

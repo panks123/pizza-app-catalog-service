@@ -8,11 +8,14 @@ import { ToppingService } from "./topping-service";
 import { CreateRequestBody, Topping } from "./topping-types";
 import { Logger } from "winston";
 import { ToppingFilters } from "../product/product-types";
+import { MessageProducerBroker } from "../common/types/broker";
+import { KafkaTopics } from "../common/constants";
 
 export class ToppingController {
     constructor(
         private storage: FileStorage,
         private toppingService: ToppingService,
+        private broker: MessageProducerBroker,
         private logger: Logger,
     ) {}
 
@@ -44,6 +47,15 @@ export class ToppingController {
             } as Topping);
 
             this.logger.info("Topping created", { id: topping._id });
+            // Send tooping to kafka
+            await this.broker.sendMessage(
+                KafkaTopics.TOPPING,
+                JSON.stringify({
+                    id: topping._id,
+                    price: topping.price,
+                }),
+            );
+
             res.json({ id: topping._id });
         } catch (err) {
             return next(err);

@@ -65,6 +65,7 @@ export class ProductController {
         };
 
         const newProduct = await this.productService.create(product);
+        this.logger.info("Created product", { id: newProduct._id });
         // Send product to kafka
         await this.broker.sendMessage(
             KafkaTopics.PRODUCT,
@@ -73,7 +74,6 @@ export class ProductController {
                 priceConfiguration: newProduct.priceConfiguration,
             }),
         );
-        this.logger.info("Created product", { id: newProduct._id });
         res.json({ id: newProduct._id });
     };
 
@@ -147,6 +147,7 @@ export class ProductController {
             product,
         );
 
+        this.logger.info("Product was updated", { productId });
         // Send product to kafka
         await this.broker.sendMessage(
             KafkaTopics.PRODUCT,
@@ -155,7 +156,6 @@ export class ProductController {
                 priceConfiguration: updatedProduct.priceConfiguration,
             }),
         );
-        this.logger.info("Product was updated", { productId });
         res.json({ id: productId });
     };
 
