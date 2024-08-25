@@ -21,4 +21,22 @@ export class ToppingService {
             customLabels: paginationLabels,
         });
     }
+
+    async getToppingById(toppingId: string) {
+        return await ToppingModel.findById(toppingId);
+    }
+
+    async updateTopping(toppingId: string, toppingData: Topping) {
+        return (await ToppingModel.findOneAndUpdate(
+            { _id: toppingId },
+            {
+                $set: toppingData,
+            },
+            { new: true },
+        )) as Topping;
+    }
+
+    async deleteOne(toppingId: string) {
+        return await ToppingModel.deleteOne({ _id: toppingId });
+    }
 }
