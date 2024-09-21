@@ -5,7 +5,7 @@ import createHttpError from "http-errors";
 import { v4 as uuid4 } from "uuid";
 import { FileStorage } from "../common/types/storage";
 import { ToppingService } from "./topping-service";
-import { CreateRequestBody, Topping } from "./topping-types";
+import { CreateRequestBody, Topping, ToppingEvents } from "./topping-types";
 import { Logger } from "winston";
 import { ToppingFilters } from "../product/product-types";
 import { MessageProducerBroker } from "../common/types/broker";
@@ -52,9 +52,12 @@ export class ToppingController {
             await this.broker.sendMessage(
                 KafkaTopics.TOPPING,
                 JSON.stringify({
-                    id: topping._id,
-                    price: topping.price,
-                    tenantId: topping.tenantId,
+                    event_type: ToppingEvents.TOPPING_CREATE,
+                    data: {
+                        id: topping._id,
+                        price: topping.price,
+                        tenantId: topping.tenantId,
+                    },
                 }),
             );
 
@@ -122,9 +125,12 @@ export class ToppingController {
         await this.broker.sendMessage(
             KafkaTopics.TOPPING,
             JSON.stringify({
-                id: updatedTopping._id,
-                price: updatedTopping.price,
-                tenantId: updatedTopping.tenantId,
+                event_type: ToppingEvents.TOPPING_UPDATE,
+                data: {
+                    id: updatedTopping._id,
+                    price: updatedTopping.price,
+                    tenantId: updatedTopping.tenantId,
+                },
             }),
         );
 

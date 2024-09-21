@@ -31,3 +31,9 @@ export interface ProductFilters {
 export interface ToppingFilters {
     tenantId?: string;
 }
+
+export enum ProductEvents {
+    PRODUCT_CREATE = "PRODUCT_CREATE",
+    PRODUCT_UPDATE = "PRODUCT_UPDATE",
+    PRODUCT_DELETE = "PRODUCT_DELETE",
+}
