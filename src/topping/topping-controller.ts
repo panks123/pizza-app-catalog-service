@@ -198,6 +198,17 @@ export class ToppingController {
         this.logger.info("Topping deleted", { toppingId });
         await this.storage.delete(toppingImage);
 
+        // Send delete event to kafka
+        await this.broker.sendMessage(
+            KafkaTopics.TOPPING,
+            JSON.stringify({
+                event_type: ToppingEvents.TOPPING_DELETE,
+                data: {
+                    id: toppingId,
+                },
+            }),
+        );
+
         res.json({ toppingId, msg: "success" });
     };
 }
