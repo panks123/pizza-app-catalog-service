@@ -247,6 +247,17 @@ export class ProductController {
         this.logger.info("Product deleted", { productId });
         await this.storage.delete(productImage);
 
+        // Send delete event to kafka
+        await this.broker.sendMessage(
+            KafkaTopics.PRODUCT,
+            JSON.stringify({
+                event_type: ProductEvents.PRODUCT_DELETE,
+                data: {
+                    id: productId,
+                },
+            }),
+        );
+
         res.json({ productId, msg: "success" });
     };
 }
