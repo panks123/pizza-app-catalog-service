@@ -16,6 +16,7 @@ const ALLOWED_DOMAINS = [
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
 app.use(
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     cors({
         origin: ALLOWED_DOMAINS,
     }),
