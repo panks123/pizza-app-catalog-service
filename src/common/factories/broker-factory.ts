@@ -10,7 +10,7 @@ export const createProducerBroker = (): MessageProducerBroker => {
     if (!messageProducer) {
         messageProducer = new KafkaProducerBroker(
             "catalog-service",
-            [config.get("kafka.broker")],
+            config.get("kafka.broker"),
             logger,
         );
     }
